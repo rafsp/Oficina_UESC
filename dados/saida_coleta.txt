@@ -1,0 +1,79 @@
+
+======================================================================
+1. COLETA  (VivaReal, ZAP e Chaves na Mao; robo identificado, 2 s entre paginas)
+======================================================================
+(sem coleta) lendo anuncios_todos.csv: 1658 linhas, coletadas em 2026-11-06 23:38 a 2026-11-06 23:42
+   chavesnamao Ilhéus   30
+   chavesnamao Itabuna  6
+   vivareal  Ilhéus   723
+   vivareal  Itabuna  88
+   zap       Ilhéus   723
+   zap       Itabuna  88
+   chavesnamao: so a pagina 1 por cidade, porque o robots.txt proibe query string (e a paginacao e ?pg=N).
+   quintoandar, lopes: nao entregam anuncios a programas. olx, imovelweb: 403. (testados em 06/11/2026) Ficam fora.
+
+======================================================================
+2. DOIS PORTAIS, UM ESTOQUE
+======================================================================
+ids no VivaReal ..... 748
+ids no ZAP .......... 669
+nos dois ............ 607   (mesmo grupo, mesmo estoque)
+so em um deles ...... 203
+quem soma os dois portais sem olhar o id conta quase tudo em dobro.
+
+======================================================================
+3. O QUE A BASE ESCONDE
+======================================================================
+ids repetidos (entre paginas e entre portais) .. 812
+bairro vazio, lido do texto ........ 676   (no VivaReal a regra falha nos comerciais)
+bairro vazio, lido da URL .......... 834   (ZAP e Chaves na Mao nao separam o bairro na URL)
+tipos de imovel:
+   Apartment        893
+   Place            313
+   House            257
+   Store            185
+   Landform         6
+   ParkingFacility  2
+   Accommodation    2
+maior preco ........................ R$ 90.000  (nossa senhora da vitoria)
+
+======================================================================
+4. QUATRO DECISOES
+======================================================================
+sem duplicata ........ 1658 -> 846   (drop_duplicates por id_anuncio; fica a primeira ocorrencia, do VivaReal)
+so moradia ........... 846 -> 594   (Apartment, House ou kitnet; com preco e area)
+mediana, nao media ... ver tabela abaixo
+bairro padronizado ... prefixos 'comercial' e 'deposito armazem' removidos; texto do anuncio quando a URL nao separa (ZAP); sem acento, para 'Vitória' e 'Vitoria' serem um so
+
+-> anuncios_limpo.csv  (846 linhas, sobe no Databricks)
+
+======================================================================
+5. A RESPOSTA  (residencial, sem duplicata)
+======================================================================
+         media_bruta    n   media  mediana  minimo   maximo  preco_m2
+cidade                                                               
+Ilhéus        4780.0  542  4230.8   3500.0   300.0  20000.0      40.0
+Itabuna       6678.0   52  4457.3   2850.0   850.0  18000.0      18.6
+
+media_bruta = com galpoes e lojas: Itabuna parecia mais cara. Mediana residencial diz o contrario.
+
+======================================================================
+6. ILHEUS POR BAIRRO  (10 ou mais anuncios residenciais)
+======================================================================
+                            n  mediana
+bairro                                
+Jardim Atlantico           34   5500.0
+Centro                     22   4575.0
+Cidade Nova                21   4109.0
+Pontal                     48   3529.5
+Olivenca                   23   3500.0
+Sao Francisco              92   3500.0
+Nossa Senhora Da Vitoria  193   3300.0
+Jardim Savoia              14   3000.0
+Conquista                  10   2250.0
+
+======================================================================
+PRONTO
+======================================================================
+arquivos: anuncios_todos.csv, anuncios_limpo.csv, g1_hist_ilheus.png, g2_bairros_ilheus.png, g3_preco_area.png, g4_tipos.png
+tempo total: 1 s
